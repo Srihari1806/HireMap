@@ -25,8 +25,8 @@ interface AuthContextType {
     isLoading: boolean;
     login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
     signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-    loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
-    loginWithGithub: () => Promise<{ success: boolean; error?: string }>;
+    loginWithGoogle: () => Promise<{ success: boolean; isNewUser?: boolean; error?: string }>;
+    loginWithGithub: () => Promise<{ success: boolean; isNewUser?: boolean; error?: string }>;
     logout: () => void;
 }
 
@@ -111,16 +111,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
+    const loginWithGoogle = async (): Promise<{ success: boolean; isNewUser?: boolean; error?: string }> => {
         try {
             // Actual Google OAuth popup
             const userCred = await signInWithPopup(auth, googleProvider);
 
             // Ensure data populates for owner
             if (userCred.user.email === OWNER_EMAIL) {
-                ensureOwnerProfile();
+                await ensureOwnerProfile();
+                return { success: true, isNewUser: false };
             }
-            return { success: true };
+
+            // Check if profile exists to direct to onboarding
+            const profileExists = await hasProfile(userCred.user.uid);
+            return { success: true, isNewUser: !profileExists };
         } catch (error) {
             console.error(error);
             let msg = 'Google sign-in failed.';
@@ -133,10 +137,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const loginWithGithub = async (): Promise<{ success: boolean; error?: string }> => {
+    const loginWithGithub = async (): Promise<{ success: boolean; isNewUser?: boolean; error?: string }> => {
         try {
-            await signInWithPopup(auth, githubProvider);
-            return { success: true };
+            const userCred = await signInWithPopup(auth, githubProvider);
+            const profileExists = await hasProfile(userCred.user.uid);
+            return { success: true, isNewUser: !profileExists };
         } catch (error) {
             console.error(error);
             return { success: false, error: 'GitHub sign-in failed. Ensure config is added in .env' };

@@ -38,7 +38,7 @@ export default function Auth() {
         setOauthLoading(null);
         if (result.success) {
             toast('Signed in with Google! 🎉', 'success');
-            navigate('/dashboard');
+            navigate(result.isNewUser ? '/onboarding' : '/dashboard');
         } else {
             toast('Google sign-in failed.', 'error');
         }
@@ -50,7 +50,7 @@ export default function Auth() {
         setOauthLoading(null);
         if (result.success) {
             toast('Signed in with GitHub! 🎉', 'success');
-            navigate('/dashboard');
+            navigate(result.isNewUser ? '/onboarding' : '/dashboard');
         } else {
             toast('GitHub sign-in failed.', 'error');
         }
