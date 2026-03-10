@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Map, TrendingUp, ChevronRight, Zap, Star, Lock, CheckCircle2, Clock, ArrowRight } from 'lucide-react';
+import { Map, TrendingUp, Zap, Star, Lock, CheckCircle2, Clock, ArrowRight } from 'lucide-react';
 import { useToast } from '../lib/toast';
 
 const CAREER_PATHS = [
