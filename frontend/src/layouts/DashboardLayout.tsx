@@ -1,86 +1,193 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, GraduationCap, Briefcase, Map as MapIcon, Target, User, Search } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    LayoutDashboard, Briefcase, GraduationCap, Map, Target,
+    User, MessageSquare, FileText, Search, Bell, ChevronDown, Map as MapIcon
+} from 'lucide-react';
+import { MOCK_STUDENT } from '../lib/mockData';
 
-const NAV_ITEMS = [
-    { name: 'Feed', path: '/feed', icon: LayoutDashboard },
-    { name: 'Colleges', path: '/colleges', icon: GraduationCap },
-    { name: 'Jobs', path: '/jobs', icon: Briefcase },
-    { name: 'Roadmaps', path: '/jobs/roadmap', icon: MapIcon },
-    { name: 'Progress', path: '/progress', icon: Target },
-    { name: 'Profile', path: '/profile', icon: User },
+const NAV = [
+    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Jobs', path: '/jobs', icon: Briefcase },
+    { label: 'Colleges', path: '/colleges', icon: GraduationCap },
+    { label: 'Roadmaps', path: '/jobs/job_001/roadmap', icon: Map },
+    { label: 'Progress', path: '/progress', icon: Target },
+    { label: 'Community', path: '/community', icon: MessageSquare },
+    { label: 'Resume', path: '/resume', icon: FileText },
+    { label: 'Profile', path: '/profile', icon: User },
 ];
 
 export default function DashboardLayout() {
-    const location = useLocation();
+    const loc = useLocation();
 
     return (
-        <div className="min-h-screen bg-slate-50 flex">
+        <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--color-bg)' }}>
             {/* SIDEBAR */}
-            <aside className="w-64 bg-white border-r border-slate-200 fixed h-screen p-4 flex flex-col gap-8 hidden md:flex z-10">
-                <div className="flex items-center gap-2 px-2 pt-4 text-primary-600 font-bold text-xl tracking-tight">
-                    <MapIcon className="w-7 h-7" /> HireMap
+            <aside style={{
+                width: 240, flexShrink: 0, background: 'var(--color-surface)',
+                borderRight: '1px solid var(--color-border)',
+                display: 'flex', flexDirection: 'column', gap: 0,
+                position: 'fixed', height: '100vh', overflowY: 'auto',
+                zIndex: 40
+            }}>
+                {/* Logo */}
+                <div style={{ padding: '20px 16px 12px', borderBottom: '1px solid var(--color-border)' }}>
+                    <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+                        <div style={{
+                            width: 32, height: 32, borderRadius: 8,
+                            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                            <MapIcon size={18} color="white" />
+                        </div>
+                        <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>HireMap</span>
+                    </Link>
                 </div>
 
-                <nav className="flex-1 space-y-2 relative">
-                    {NAV_ITEMS.map((item) => {
-                        const isActive = location.pathname.startsWith(item.path);
-                        const Icon = item.icon;
+                {/* Student mini card */}
+                <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--color-border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{
+                            width: 36, height: 36, borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #6366f1, #22d3ee)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '0.875rem', fontWeight: 700, color: 'white', flexShrink: 0
+                        }}>
+                            {MOCK_STUDENT.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div style={{ overflow: 'hidden' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {MOCK_STUDENT.name}
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
+                                {MOCK_STUDENT.branch} · {MOCK_STUDENT.college.split(',')[0]}
+                            </div>
+                        </div>
+                        <ChevronDown size={14} style={{ color: 'var(--color-text-muted)', marginLeft: 'auto', flexShrink: 0 }} />
+                    </div>
+                </div>
 
+                {/* Readiness score bar */}
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Readiness Score</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6366f1' }}>{MOCK_STUDENT.readinessScore}%</span>
+                    </div>
+                    <div style={{ height: 6, background: 'var(--color-surface-3)', borderRadius: 3, overflow: 'hidden' }}>
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${MOCK_STUDENT.readinessScore}%` }}
+                            transition={{ duration: 1.2, ease: 'easeOut', delay: 0.3 }}
+                            style={{ height: '100%', background: 'linear-gradient(90deg, #6366f1, #22d3ee)', borderRadius: 3 }}
+                        />
+                    </div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: 4 }}>
+                        Ready for Backend roles · Top 22%
+                    </div>
+                </div>
+
+                {/* Navigation */}
+                <nav style={{ padding: '10px 10px', flex: 1 }}>
+                    {NAV.map(({ label, path, icon: Icon }) => {
+                        const active = loc.pathname === path || (path !== '/dashboard' && loc.pathname.startsWith(path.split('/').slice(0, 2).join('/')));
                         return (
-                            <Link
-                                key={item.name}
-                                to={item.path}
-                                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all font-medium relative z-10 ${isActive ? 'text-primary-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
-                            >
-                                {isActive && (
+                            <div key={path} style={{ position: 'relative' }}>
+                                {active && (
                                     <motion.div
-                                        layoutId="activeTab"
-                                        className="absolute inset-0 bg-primary-100 rounded-xl -z-10"
-                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                        layoutId="sidebar-active"
+                                        style={{
+                                            position: 'absolute', inset: 0, borderRadius: 8,
+                                            background: 'rgba(99,102,241,0.12)',
+                                            border: '1px solid rgba(99,102,241,0.25)',
+                                        }}
+                                        transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
                                     />
                                 )}
-                                <Icon className={`w-5 h-5 ${isActive ? 'text-primary-600' : 'text-slate-400'}`} />
-                                {item.name}
-                            </Link>
-                        )
+                                <Link
+                                    to={path}
+                                    className="nav-item"
+                                    style={{
+                                        color: active ? '#a5b4fc' : undefined,
+                                        position: 'relative', zIndex: 1
+                                    }}
+                                >
+                                    <Icon size={16} style={{ color: active ? '#6366f1' : undefined }} />
+                                    {label}
+                                </Link>
+                            </div>
+                        );
                     })}
                 </nav>
 
-                <div className="p-4 bg-slate-100 rounded-xl space-y-2">
-                    <p className="text-sm font-semibold">Readiness Score</p>
-                    <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                        <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: '64%' }}
-                            className="bg-primary-500 h-full"
-                        />
+                {/* Footer streak */}
+                <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: '1.2rem' }}>🔥</span>
+                        <div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>{MOCK_STUDENT.streak} Day Streak</div>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Keep it going!</div>
+                        </div>
                     </div>
-                    <p className="text-xs text-slate-500">You are 64% ready for SDE roles</p>
                 </div>
             </aside>
 
-            {/* MAIN CONTENT AREA */}
-            <main className="flex-1 md:ml-64 relative min-h-screen pb-20 md:pb-0">
-                <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex justify-between items-center">
-                    <div className="relative max-w-md w-full">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            {/* MAIN */}
+            <div style={{ flex: 1, marginLeft: 240, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+                {/* Top bar */}
+                <header style={{
+                    position: 'sticky', top: 0, zIndex: 30,
+                    background: 'rgba(13,15,20,0.85)', backdropFilter: 'blur(12px)',
+                    borderBottom: '1px solid var(--color-border)',
+                    padding: '0 28px', height: 60,
+                    display: 'flex', alignItems: 'center', gap: 16,
+                }}>
+                    <div style={{ position: 'relative', flex: 1, maxWidth: 400 }}>
+                        <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
                         <input
-                            className="w-full bg-slate-100 border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-all placeholder:text-slate-400"
-                            placeholder="Search companies, paths, or skills..."
+                            placeholder="Search companies, roles, skills..."
+                            style={{
+                                width: '100%', paddingLeft: 36, paddingRight: 16, height: 36,
+                                background: 'var(--color-surface-2)', border: '1px solid var(--color-border)',
+                                borderRadius: 8, fontSize: '0.8rem', color: 'var(--color-text-primary)',
+                                outline: 'none',
+                            }}
                         />
                     </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold border-2 border-primary-200">
-                            U
+                    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <button style={{
+                            width: 36, height: 36, borderRadius: 8,
+                            background: 'var(--color-surface-2)', border: '1px solid var(--color-border)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer', color: 'var(--color-text-secondary)'
+                        }}>
+                            <Bell size={16} />
+                        </button>
+                        <div style={{
+                            width: 36, height: 36, borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #6366f1, #22d3ee)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '0.8rem', fontWeight: 700, color: 'white', cursor: 'pointer'
+                        }}>
+                            SB
                         </div>
                     </div>
                 </header>
 
-                <div className="p-6 lg:p-10 max-w-7xl mx-auto">
-                    <Outlet />
-                </div>
-            </main>
+                {/* Page content */}
+                <main style={{ flex: 1, padding: '28px', overflowY: 'auto' }}>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={loc.pathname}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.25 }}
+                        >
+                            <Outlet />
+                        </motion.div>
+                    </AnimatePresence>
+                </main>
+            </div>
         </div>
     );
 }

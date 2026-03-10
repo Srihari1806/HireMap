@@ -1,33 +1,241 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #f5f3ff;
-  --color-primary-100: #ede9fe;
-  --color-primary-200: #ddd6fe;
-  --color-primary-300: #c4b5fd;
-  --color-primary-400: #a78bfa;
-  --color-primary-500: #8b5cf6;
-  --color-primary-600: #7c3aed;
-  --color-primary-700: #6d28d9;
-  --color-primary-800: #5b21b6;
-  --color-primary-900: #4c1d95;
-  --color-primary-950: #2e1065;
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --color-bg: #0d0f14;
+    --color-surface: #13161d;
+    --color-surface-2: #1a1d27;
+    --color-surface-3: #21253a;
+    --color-border: #2a2d3e;
+    --color-border-light: #353849;
+
+    --color-primary: #6366f1;
+    --color-primary-hover: #4f52e0;
+    --color-primary-glow: rgba(99, 102, 241, 0.15);
+
+    --color-accent: #22d3ee;
+    --color-success: #10b981;
+    --color-warn: #f59e0b;
+    --color-danger: #ef4444;
+
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #475569;
 }
 
-@layer utilities {
-  .scrolly-section {
-    @apply min-h-screen w-full flex items-center justify-center snap-center relative overflow-hidden;
-  }
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
-html,
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+}
+
 body {
-  @apply bg-slate-50 text-slate-900 scroll-smooth selection:bg-primary-200 selection:text-primary-900;
-  font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 
-.dark-mode {
-  @apply bg-slate-950 text-slate-50 selection:bg-primary-800 selection:text-primary-50;
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border-light);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+}
+
+/* Selection */
+::selection {
+    background: var(--color-primary-glow);
+    color: #c7d2fe;
+}
+
+/* Utility classes */
+.glass {
+    background: rgba(19, 22, 29, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--color-border);
+}
+
+.glow-primary {
+    box-shadow: 0 0 40px var(--color-primary-glow);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #6366f1, #a78bfa, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+}
+
+.card-hover {
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.card-hover:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15);
+}
+
+/* Animations */
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Heatmap cells */
+.heat-cell {
+    border-radius: 3px;
+    transition: opacity 0.2s;
+}
+
+.heat-0 {
+    background: var(--color-surface-2);
+}
+
+.heat-1 {
+    background: #1a3a2a;
+}
+
+.heat-2 {
+    background: #1e5935;
+}
+
+.heat-3 {
+    background: #2d8a4e;
+}
+
+.heat-4 {
+    background: #40c463;
+}
+
+.heat-5 {
+    background: #4ae168;
+}
+
+/* Progress rings */
+.ring-base {
+    stroke: var(--color-surface-3);
+}
+
+.ring-fill-primary {
+    stroke: #6366f1;
+}
+
+.ring-fill-accent {
+    stroke: #22d3ee;
+}
+
+.ring-fill-success {
+    stroke: #10b981;
+}
+
+.ring-fill-warn {
+    stroke: #f59e0b;
+}
+
+/* Sidebar nav item */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+}
+
+.nav-item:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text-primary);
+}
+
+.nav-item.active {
+    background: var(--color-primary-glow);
+    color: #a5b4fc;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.nav-item.active svg {
+    color: #6366f1;
+}
+
+/* Badge */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.03em;
 }
