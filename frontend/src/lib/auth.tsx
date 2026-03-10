@@ -1,14 +1,14 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { saveProfile, DEMO_PROFILE } from './profileStore';
 import { auth, googleProvider, githubProvider } from './firebase';
+import { FirebaseError } from 'firebase/app';
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signInWithPopup,
     signOut,
     onAuthStateChanged,
-    updateProfile,
-    FirebaseError
+    updateProfile
 } from 'firebase/auth';
 
 export interface User {
