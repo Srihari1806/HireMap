@@ -85,7 +85,7 @@ export default function Onboarding() {
         };
 
         profileData.readinessScore = calcReadiness(profileData as UserProfile);
-        saveProfile(user.id, profileData);
+        await saveProfile(user.id, profileData);
         setSaving(false);
         toast(`Profile created! Readiness: ${profileData.readinessScore}% 🎉`, 'success');
         navigate('/dashboard');

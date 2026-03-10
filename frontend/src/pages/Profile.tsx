@@ -43,49 +43,49 @@ export default function Profile() {
 
     useEffect(() => {
         if (!user) { setProfile(DEMO_PROFILE); setIsDemo(true); return; }
-        const stored = getProfile(user.id);
-        // If no profile yet, show the demo as example
-        if (!stored.onboardingComplete) {
-            setProfile(DEMO_PROFILE);
-            setIsDemo(true);
-        } else {
-            setProfile(stored);
-            setIsDemo(false);
-        }
+
+        getProfile(user.id).then(stored => {
+            if (!stored.onboardingComplete) {
+                setProfile(DEMO_PROFILE);
+                setIsDemo(true);
+            } else {
+                setProfile(stored);
+                setIsDemo(false);
+            }
+        });
     }, [user]);
 
-    const initials = profile.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+    const initials = profile.name ? profile.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'ST';
 
     const handleSaveEdit = async () => {
         if (!user || isDemo) return;
         setSaving(true);
-        await new Promise(r => setTimeout(r, 500));
         const merged = { ...profile, ...editForm };
         merged.readinessScore = calcReadiness(merged);
-        const saved = saveProfile(user.id, merged);
+        const saved = await saveProfile(user.id, merged);
         setProfile(saved);
         setSaving(false);
         setActiveTab('overview');
         toast('Profile updated! ✅', 'success');
     };
 
-    const addSkill = () => {
+    const addSkill = async () => {
         if (!newSkill.trim() || isDemo) return;
         const s = newSkill.trim();
         if (profile.skills.includes(s)) { toast('Skill already added.', 'info'); return; }
-        const updated = saveProfile(user!.id, { skills: [...profile.skills, s] });
+        const updated = await saveProfile(user!.id, { skills: [...profile.skills, s] });
         setProfile(updated);
         setNewSkill('');
         toast(`"${s}" added to skills!`, 'success');
     };
 
-    const removeSkill = (skill: string) => {
+    const removeSkill = async (skill: string) => {
         if (isDemo) return;
-        const updated = saveProfile(user!.id, { skills: profile.skills.filter(s => s !== skill) });
+        const updated = await saveProfile(user!.id, { skills: profile.skills.filter(s => s !== skill) });
         setProfile(updated);
     };
 
-    const addProject = () => {
+    const addProject = async () => {
         if (!newProject.name || isDemo) return;
         const proj: Project = {
             id: `p_${Date.now()}`,
@@ -95,16 +95,16 @@ export default function Profile() {
             link: newProject.link || '#',
             stars: 0,
         };
-        const updated = saveProfile(user!.id, { projects: [...profile.projects, proj] });
+        const updated = await saveProfile(user!.id, { projects: [...profile.projects, proj] });
         setProfile(updated);
         setNewProject({ name: '', desc: '', skills: '', link: '' });
         setShowAddProject(false);
         toast('Project added! 🚀', 'success');
     };
 
-    const removeProject = (id: string) => {
+    const removeProject = async (id: string) => {
         if (isDemo) return;
-        const updated = saveProfile(user!.id, { projects: profile.projects.filter(p => p.id !== id) });
+        const updated = await saveProfile(user!.id, { projects: profile.projects.filter(p => p.id !== id) });
         setProfile(updated);
     };
 

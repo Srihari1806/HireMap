@@ -48,7 +48,7 @@ export interface UserProfile {
     createdAt: string;
 }
 
-const PROFILES_KEY = 'hiremap_profiles';
+
 
 export const DEFAULT_PROFILE: UserProfile = {
     name: '',
@@ -117,35 +117,44 @@ export const DEMO_PROFILE: UserProfile = {
     createdAt: '2026-01-01T00:00:00Z',
 };
 
-function getAllProfiles(): Record<string, UserProfile> {
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from './firebase';
+
+export async function getProfile(userId: string): Promise<UserProfile> {
     try {
-        return JSON.parse(localStorage.getItem(PROFILES_KEY) || '{}');
-    } catch {
-        return {};
+        const docRef = doc(db, 'profiles', userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return { ...DEFAULT_PROFILE, ...(docSnap.data() as Partial<UserProfile>) };
+        }
+    } catch (e) {
+        console.error("Firebase getProfile error:", e);
+    }
+    return { ...DEFAULT_PROFILE };
+}
+
+export async function saveProfile(userId: string, profile: Partial<UserProfile>): Promise<UserProfile> {
+    try {
+        const docRef = doc(db, 'profiles', userId);
+        const docSnap = await getDoc(docRef);
+        const existing = docSnap.exists() ? docSnap.data() : { ...DEFAULT_PROFILE };
+        const updated = { ...existing, ...profile };
+        await setDoc(docRef, updated);
+        return updated as UserProfile;
+    } catch (e) {
+        console.error("Firebase saveProfile error:", e);
+        return { ...DEFAULT_PROFILE, ...profile } as UserProfile;
     }
 }
 
-function saveAllProfiles(profiles: Record<string, UserProfile>) {
-    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
-}
-
-export function getProfile(userId: string): UserProfile {
-    const all = getAllProfiles();
-    return all[userId] ?? { ...DEFAULT_PROFILE };
-}
-
-export function saveProfile(userId: string, profile: Partial<UserProfile>): UserProfile {
-    const all = getAllProfiles();
-    const existing = all[userId] ?? { ...DEFAULT_PROFILE };
-    const updated = { ...existing, ...profile };
-    all[userId] = updated;
-    saveAllProfiles(all);
-    return updated;
-}
-
-export function hasProfile(userId: string): boolean {
-    const all = getAllProfiles();
-    return !!all[userId]?.onboardingComplete;
+export async function hasProfile(userId: string): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'profiles', userId);
+        const docSnap = await getDoc(docRef);
+        return docSnap.exists() && !!docSnap.data().onboardingComplete;
+    } catch (e) {
+        return false;
+    }
 }
 
 // Simulate a readiness score based on filled data

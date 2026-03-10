@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { saveProfile, DEMO_PROFILE } from './profileStore';
+import { saveProfile, DEMO_PROFILE, hasProfile } from './profileStore';
 import { auth, googleProvider, githubProvider } from './firebase';
 import { FirebaseError } from 'firebase/app';
 import {
@@ -35,11 +35,10 @@ const AuthContext = createContext<AuthContextType | null>(null);
 const OWNER_EMAIL = 'sriharibeesetti@gmail.com';
 const OWNER_USER_ID = 'srihari_owner';
 
-function ensureOwnerProfile() {
-    const raw = localStorage.getItem('hiremap_profiles');
-    const profiles = raw ? JSON.parse(raw) : {};
-    if (!profiles[OWNER_USER_ID]) {
-        saveProfile(OWNER_USER_ID, { ...DEMO_PROFILE, onboardingComplete: true });
+async function ensureOwnerProfile() {
+    const exists = await hasProfile(OWNER_USER_ID);
+    if (!exists) {
+        await saveProfile(OWNER_USER_ID, { ...DEMO_PROFILE, onboardingComplete: true });
     }
 }
 

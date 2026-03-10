@@ -31,8 +31,9 @@ export default function DashboardLayout() {
 
     useEffect(() => {
         if (user) {
-            const p = getProfile(user.id);
-            setProfile(p.onboardingComplete ? p : DEMO_PROFILE);
+            getProfile(user.id).then(p => {
+                setProfile(p.onboardingComplete ? p : DEMO_PROFILE);
+            });
         }
     }, [user]);
 
