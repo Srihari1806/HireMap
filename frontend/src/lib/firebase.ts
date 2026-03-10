@@ -10,12 +10,13 @@ import { getAuth, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
 // 4. Enable "Google" and "Email/Password" in Build -> Authentication -> Sign-in method
 // 5. In Firebase Auth Settings -> Authorized domains, add 'srihari1806.github.io'
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSy_REPLACE_WITH_YOUR_ACTUAL_KEY",
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "your-app.firebaseapp.com",
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "your-app",
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "your-app.appspot.com",
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789",
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1234:web:1234"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDTPMItb9kK3g8kzjpT7uH08ghDTdgx96Y",
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "hiremap-5b45c.firebaseapp.com",
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "hiremap-5b45c",
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "hiremap-5b45c.firebasestorage.app",
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "600825653181",
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:600825653181:web:46df61a34356997f3914d4",
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-CPQ982DCM9"
 };
 
 // Initialize Firebase
