@@ -1,5 +1,15 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { saveProfile, DEMO_PROFILE } from './profileStore';
+import { auth, googleProvider, githubProvider } from './firebase';
+import {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signInWithPopup,
+    signOut,
+    onAuthStateChanged,
+    updateProfile,
+    FirebaseError
+} from 'firebase/auth';
 
 export interface User {
     id: string;
@@ -22,11 +32,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const USERS_KEY = 'hiremap_users';
-const SESSION_KEY = 'hiremap_session';
-
-// ─── Owner account ────────────────────────────────────────────────────────────
-// Clicking "Google" on the auth page maps to this real email + loads full profile.
 const OWNER_EMAIL = 'sriharibeesetti@gmail.com';
 const OWNER_USER_ID = 'srihari_owner';
 
@@ -37,33 +42,6 @@ function ensureOwnerProfile() {
         saveProfile(OWNER_USER_ID, { ...DEMO_PROFILE, onboardingComplete: true });
     }
 }
-// ─────────────────────────────────────────────────────────────────────────────
-
-function getUsers(): Record<string, { password: string; user: User }> {
-    try {
-        return JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
-    } catch {
-        return {};
-    }
-}
-
-function saveUsers(users: Record<string, { password: string; user: User }>) {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-function getSession(): User | null {
-    try {
-        const s = localStorage.getItem(SESSION_KEY);
-        return s ? JSON.parse(s) : null;
-    } catch {
-        return null;
-    }
-}
-
-function saveSession(user: User | null) {
-    if (user) localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    else localStorage.removeItem(SESSION_KEY);
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -71,83 +49,107 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         ensureOwnerProfile();
-        const session = getSession();
-        setUser(session);
-        setIsLoading(false);
+        // Listen to Firebase Auth state changes
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            if (firebaseUser) {
+                // If it's Srihari's email, map it directly to the predefined OWNER_USER_ID 
+                // so your demo profile data is loaded perfectly.
+                const isOwner = firebaseUser.email === OWNER_EMAIL;
+
+                setUser({
+                    id: isOwner ? OWNER_USER_ID : firebaseUser.uid,
+                    name: firebaseUser.displayName || 'Student',
+                    email: firebaseUser.email || '',
+                    avatar: firebaseUser.photoURL || undefined,
+                    provider: firebaseUser.providerData[0]?.providerId === 'google.com' ? 'google' :
+                        firebaseUser.providerData[0]?.providerId === 'github.com' ? 'github' : 'email',
+                    createdAt: firebaseUser.metadata.creationTime || new Date().toISOString()
+                });
+            } else {
+                setUser(null);
+            }
+            setIsLoading(false);
+        });
+
+        return () => unsubscribe();
     }, []);
 
     const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-        await new Promise(r => setTimeout(r, 600));
-        const users = getUsers();
-        const key = email.toLowerCase();
-        if (!users[key]) return { success: false, error: 'No account found with this email.' };
-        if (users[key].password !== btoa(password)) return { success: false, error: 'Incorrect password.' };
-        const loggedIn = users[key].user;
-        setUser(loggedIn);
-        saveSession(loggedIn);
-        return { success: true };
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            return { success: true };
+        } catch (error) {
+            let msg = 'Login failed.';
+            if (error instanceof FirebaseError) {
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    msg = 'Invalid email or password.';
+                }
+            }
+            return { success: false, error: msg };
+        }
     };
 
     const signup = async (name: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-        await new Promise(r => setTimeout(r, 700));
         if (!name.trim()) return { success: false, error: 'Please enter your name.' };
         if (!email.includes('@')) return { success: false, error: 'Please enter a valid email.' };
         if (password.length < 6) return { success: false, error: 'Password must be at least 6 characters.' };
-        const users = getUsers();
-        const key = email.toLowerCase();
-        if (users[key]) return { success: false, error: 'An account with this email already exists.' };
-        const newUser: User = {
-            id: `user_${Date.now()}`,
-            name: name.trim(),
-            email: key,
-            provider: 'email',
-            createdAt: new Date().toISOString(),
-        };
-        users[key] = { password: btoa(password), user: newUser };
-        saveUsers(users);
-        setUser(newUser);
-        saveSession(newUser);
-        return { success: true };
+
+        try {
+            const userCred = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(userCred.user, { displayName: name.trim() });
+
+            if (email === OWNER_EMAIL) {
+                ensureOwnerProfile();
+            }
+
+            return { success: true };
+        } catch (error) {
+            let msg = 'Signup failed.';
+            if (error instanceof FirebaseError && error.code === 'auth/email-already-in-use') {
+                msg = 'An account with this email already exists.';
+            }
+            return { success: false, error: msg };
+        }
     };
 
-    // ── Google sign-in ────────────────────────────────────────────────────────
-    // The "Google" button on the auth page always signs in as the owner account
-    // (sriharibeesetti@gmail.com) and loads the full Srihari profile from
-    // profileStore. In production this would use the real Google OAuth flow.
     const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
-        await new Promise(r => setTimeout(r, 800));
-        ensureOwnerProfile();
-        const ownerUser: User = {
-            id: OWNER_USER_ID,
-            name: 'Srihari Beesetti',
-            email: OWNER_EMAIL,
-            avatar: 'https://github.com/Srihari1806.png',
-            provider: 'google',
-            createdAt: '2026-01-01T00:00:00Z',
-        };
-        setUser(ownerUser);
-        saveSession(ownerUser);
-        return { success: true };
+        try {
+            // Actual Google OAuth popup
+            const userCred = await signInWithPopup(auth, googleProvider);
+
+            // Ensure data populates for owner
+            if (userCred.user.email === OWNER_EMAIL) {
+                ensureOwnerProfile();
+            }
+            return { success: true };
+        } catch (error) {
+            console.error(error);
+            let msg = 'Google sign-in failed.';
+            if (error instanceof FirebaseError && error.code === 'auth/popup-closed-by-user') {
+                msg = 'Sign-in popup was closed.';
+            } else {
+                msg += ' Ensure Firebase config is added in .env';
+            }
+            return { success: false, error: msg };
+        }
     };
-    // ─────────────────────────────────────────────────────────────────────────
 
     const loginWithGithub = async (): Promise<{ success: boolean; error?: string }> => {
-        await new Promise(r => setTimeout(r, 800));
-        const mockUser: User = {
-            id: `github_${Date.now()}`,
-            name: 'GitHub User',
-            email: 'github@hiremap.io',
-            provider: 'github',
-            createdAt: new Date().toISOString(),
-        };
-        setUser(mockUser);
-        saveSession(mockUser);
-        return { success: true };
+        try {
+            await signInWithPopup(auth, githubProvider);
+            return { success: true };
+        } catch (error) {
+            console.error(error);
+            return { success: false, error: 'GitHub sign-in failed. Ensure config is added in .env' };
+        }
     };
 
-    const logout = () => {
-        setUser(null);
-        saveSession(null);
+    const logout = async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error('Logout error', error);
+        }
     };
 
     return (
