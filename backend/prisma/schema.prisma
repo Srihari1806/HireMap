@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  password        String
+  role            Role     @default(STUDENT)
+  
+  // Profile Data
+  collegeId       String?
+  college         College? @relation(fields: [collegeId], references: [id])
+  degree          String?
+  branch          String?
+  cgpa            Float?
+  gradYear        Int?
+  
+  // Onboarding Data
+  skills          String[]
+  careerRoles     String[]
+  preferredLocs   String[]
+  jobFocus        JobFocus @default(FULL_TIME)
+  weeklyAvail     Int?     // Hours per week
+
+  // App Data
+  posts           Post[]
+  comments        Comment[]
+  savedJobs       Job[]    @relation("SavedJobs")
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum JobFocus {
+  INTERNSHIP
+  FULL_TIME
+  BOTH
+}
+
+model College {
+  id              String   @id @default(uuid())
+  name            String
+  location        String
+  fees            Float
+  avgPackage      Float
+  
+  // DNA Score
+  placementReality Float   // 0-100
+  internshipExp    Float   // 0-100
+  roi              Float   // 0-100
+  
+  users           User[]
+  posts           Post[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Job {
+  id              String   @id @default(uuid())
+  title           String
+  company         String
+  role            String
+  location        String
+  type            JobFocus
+  remote          Boolean  @default(false)
+  salary          String   // e.g. "12 LPA", "50k/month"
+  
+  // Eligibility
+  minCgpa         Float    @default(0.0)
+  reqSkills       String[]
+  
+  // Allocation Data
+  openings        Int
+  applicants      Int
+  shortlistRatio  Float    // e.g. 0.1 for 10%
+  interviewRounds Int
+
+  savedByUsers    User[]   @relation("SavedJobs")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Post {
+  id              String   @id @default(uuid())
+  content         String
+  type            PostType
+  anonymous       Boolean  @default(false)
+  
+  authorId        String
+  author          User     @relation(fields: [authorId], references: [id])
+  
+  collegeId       String?
+  college         College? @relation(fields: [collegeId], references: [id])
+  
+  comments        Comment[]
+  likes           Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum PostType {
+  PLACEMENT_UPDATE
+  INTERNSHIP_STATS
+  STUDENT_EXP
+  ALUMNI_OUTCOME
+  REALITY_CHECK
+}
+
+model Comment {
+  id              String   @id @default(uuid())
+  content         String
+  
+  postId          String
+  post            Post     @relation(fields: [postId], references: [id])
+  
+  authorId        String
+  author          User     @relation(fields: [authorId], references: [id])
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
