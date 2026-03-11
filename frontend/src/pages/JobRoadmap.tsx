@@ -1,13 +1,27 @@
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MOCK_JOBS, MOCK_ROADMAPS } from '../lib/mockData';
+import { MOCK_ROADMAPS } from '../lib/mockData';
+import { ALL_JOBS } from '../lib/jobData';
 import { CheckCircle2, Circle, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
 export default function JobRoadmap() {
     const { id } = useParams();
-    const job = MOCK_JOBS.find(j => j.id === id) ?? MOCK_JOBS[0];
-    const roadmapWeeks = MOCK_ROADMAPS[job.id] || MOCK_ROADMAPS['job_001'];
+    const job = ALL_JOBS.find(j => j.id === id) ?? ALL_JOBS[0];
+
+    // Intelligently select a roadmap template
+    const getRoadmapByRole = (role: string) => {
+        const r = role.toLowerCase();
+        if (r.includes('frontend')) return MOCK_ROADMAPS['job_005']; // Frontend Engineer
+        if (r.includes('full stack') || r.includes('fullstack')) return MOCK_ROADMAPS['job_003']; // Full Stack
+        // Fallback or exact matches
+        if (MOCK_ROADMAPS[job.id]) return MOCK_ROADMAPS[job.id];
+        if (r.includes('intern') && !r.includes('backend')) return MOCK_ROADMAPS['job_004']; // SDE Intern
+        if (r.includes('sde') || r.includes('software engineer')) return MOCK_ROADMAPS['job_002']; // SWE
+        return MOCK_ROADMAPS['job_001']; // Backend / Default
+    };
+
+    const roadmapWeeks = getRoadmapByRole(job.role);
     const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set([
         'w0t0', 'w0t1', 'w0t2', 'w1t0', 'w1t1',
     ]));

@@ -1,11 +1,12 @@
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MOCK_JOBS, MOCK_ATS_RESULT } from '../lib/mockData';
+import { MOCK_ATS_RESULT } from '../lib/mockData';
+import { ALL_JOBS } from '../lib/jobData';
 import { MapPin, Clock, ChevronRight, Zap, Bookmark, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function JobDetail() {
     const { id } = useParams();
-    const job = MOCK_JOBS.find(j => j.id === id) ?? MOCK_JOBS[0];
+    const job = ALL_JOBS.find(j => j.id === id) ?? ALL_JOBS[0];
 
     const allocStats = [
         { label: 'Openings', value: job.openings, color: '#10b981' },
@@ -50,7 +51,7 @@ export default function JobDetail() {
                                 <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>
                                     <Clock size={13} /> {job.type}
                                 </span>
-                                <span style={{ fontSize: '0.82rem', color: '#10b981', fontWeight: 600 }}>💰 {job.salary}</span>
+                                <span style={{ fontSize: '0.82rem', color: '#10b981', fontWeight: 600 }}>💰 {job.type === 'Internship' && job.stipend !== 'Not Disclosed' ? job.stipend : job.ctc}</span>
                                 {job.remote && <span style={{ padding: '2px 8px', background: 'rgba(34,211,238,0.1)', color: '#22d3ee', borderRadius: 4, fontSize: '0.72rem', fontWeight: 600, border: '1px solid rgba(34,211,238,0.2)' }}>Remote</span>}
                             </div>
                         </div>

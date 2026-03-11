@@ -15,7 +15,7 @@ const NAV = [
     { label: 'Jobs', path: '/jobs', icon: Briefcase },
     { label: 'Colleges', path: '/colleges', icon: GraduationCap },
     { label: 'Career Map', path: '/career-map', icon: Compass },
-    { label: 'Roadmaps', path: '/jobs/job_001/roadmap', icon: Map },
+    { label: 'Roadmaps', path: '/jobs/feat_001/roadmap', icon: Map },
     { label: 'Progress', path: '/progress', icon: Target },
     { label: 'Community', path: '/community', icon: MessageSquare },
     { label: 'Resume Studio', path: '/resume', icon: FileText },
@@ -122,7 +122,7 @@ export default function DashboardLayout() {
                 <nav style={{ padding: '10px 10px', flex: 1 }}>
                     {NAV.map(({ label, path, icon: Icon }) => {
                         const active = loc.pathname === path ||
-                            (path !== '/dashboard' && path !== '/jobs/job_001/roadmap' &&
+                            (path !== '/dashboard' && path !== '/jobs/feat_001/roadmap' &&
                                 loc.pathname.startsWith(path.split('/').slice(0, 2).join('/')));
                         return (
                             <div key={path} style={{ position: 'relative' }}>
