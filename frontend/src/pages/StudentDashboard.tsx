@@ -115,15 +115,15 @@ export default function StudentDashboard() {
             <div style={{ display: 'flex', gap: 16 }}>
                 <StatBox label="Readiness Score" value={`${student.readinessScore}%`} sub="Ready for SDE roles" color="#6366f1" />
                 <StatBox label="Current Streak" value={`${student.streak}d`} sub="🔥 Keep it up!" color="#f59e0b" />
-                <StatBox label="LeetCode Solved" value={lc.totalSolved} sub={`/ ${lc.totalProblems} total`} color="#10b981" />
-                <StatBox label="GitHub Commits" value={gh.totalCommits} sub="This year" color="#22d3ee" />
+                <StatBox label="LeetCode Solved" value={student.leetcode ? lc.totalSolved : '-'} sub={student.leetcode ? `/ ${lc.totalProblems} total` : 'Not linked'} color="#10b981" />
+                <StatBox label="GitHub Commits" value={student.github ? gh.totalCommits : '-'} sub={student.github ? "This year" : "Not linked"} color="#22d3ee" />
                 <StatBox label="Jobs Matched" value="14" sub="5 high confidence" color="#8b5cf6" />
             </div>
 
             {/* DSA Progress + GitHub stats */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 {/* DSA Progress card (TUF style) */}
-                <div className="card" style={{ padding: 24 }}>
+                <div className="card" style={{ padding: 24, display: 'flex', flexDirection: 'column' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                         <div>
                             <div style={{ fontSize: '1rem', fontWeight: 700 }}>DSA Progress</div>
@@ -135,6 +135,14 @@ export default function StudentDashboard() {
                         </div>
                     </div>
 
+                    {!student.leetcode ? (
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: 'var(--color-text-muted)', minHeight: 180 }}>
+                            <div style={{ fontSize: '2rem', marginBottom: 16, opacity: 0.5 }}>💻</div>
+                            <div style={{ fontWeight: 600, marginBottom: 8, color: 'var(--color-text-secondary)' }}>No LeetCode Account Linked</div>
+                            <div style={{ fontSize: '0.8rem', marginBottom: 16 }}>Connect your account to track DSA progress.</div>
+                            <Link to="/profile" style={{ padding: '8px 16px', background: 'var(--color-primary)', color: 'white', borderRadius: 8, fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>Connect LeetCode</Link>
+                        </div>
+                    ) : (
                     <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
                         {/* Big center ring */}
                         <div style={{ position: 'relative', width: 140, height: 140, flexShrink: 0 }}>
@@ -202,16 +210,26 @@ export default function StudentDashboard() {
                             </div>
                         </div>
                     </div>
+                    )}
                 </div>
 
                 {/* GitHub stats card */}
-                <div className="card" style={{ padding: 24 }}>
+                <div className="card" style={{ padding: 24, display: 'flex', flexDirection: 'column' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
                         <Github size={18} />
                         <span style={{ fontWeight: 700 }}>GitHub Activity</span>
-                        <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>@{gh.username}</span>
+                        {student.github && <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>@{student.github}</span>}
                     </div>
 
+                    {!student.github ? (
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: 'var(--color-text-muted)', minHeight: 180 }}>
+                            <div style={{ fontSize: '2rem', marginBottom: 16, opacity: 0.5 }}>🐙</div>
+                            <div style={{ fontWeight: 600, marginBottom: 8, color: 'var(--color-text-secondary)' }}>No GitHub Account Linked</div>
+                            <div style={{ fontSize: '0.8rem', marginBottom: 16 }}>Connect your GitHub to showcase your open source contributions.</div>
+                            <Link to="/profile" style={{ padding: '8px 16px', background: 'var(--color-primary)', color: 'white', borderRadius: 8, fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>Connect GitHub</Link>
+                        </div>
+                    ) : (
+                    <>
                     <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
                         <div style={{ textAlign: 'center', flex: 1 }}>
                             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#22d3ee' }}>{gh.totalCommits}</div>
@@ -246,6 +264,8 @@ export default function StudentDashboard() {
                             </div>
                         ))}
                     </div>
+                    </>
+                    )}
                 </div>
             </div>
 
@@ -255,21 +275,31 @@ export default function StudentDashboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <CalendarDays size={16} color="#6366f1" />
                         <span style={{ fontWeight: 700 }}>
-                            {submissions} submissions in the last 12 months
+                            {student.leetcode || student.github ? `${submissions} submissions in the last 12 months` : 'Activity Timeline'}
                         </span>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                        Active Days: {activeDays} · Max Streak: {lc.maxStreak}
+                    {(student.leetcode || student.github) && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                            Active Days: {activeDays} · Max Streak: {lc.maxStreak}
+                        </div>
+                    )}
+                </div>
+                {!student.leetcode && !student.github ? (
+                    <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-muted)', background: 'var(--color-surface-2)', borderRadius: 12 }}>
+                        Connect your GitHub or LeetCode account to see your activity timeline.
                     </div>
-                </div>
-                <Heatmap />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
-                    <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Less</span>
-                    {[0, 1, 2, 3, 4, 5].map(n => (
-                        <div key={n} className={`heat-cell heat-${n}`} style={{ width: 11, height: 11 }} />
-                    ))}
-                    <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>More</span>
-                </div>
+                ) : (
+                    <>
+                        <Heatmap />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Less</span>
+                            {[0, 1, 2, 3, 4, 5].map(n => (
+                                <div key={n} className={`heat-cell heat-${n}`} style={{ width: 11, height: 11 }} />
+                            ))}
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>More</span>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Job matches preview */}

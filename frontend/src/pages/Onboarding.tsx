@@ -31,6 +31,16 @@ const STEP_META = [
     { title: 'All Set! 🚀', icon: Rocket, desc: 'Your talent graph is being built. Welcome to HireMap!' },
 ];
 
+const InputField = ({ label, value, onChange, placeholder, type = 'text' }: { label: string; value: string; onChange: (v: string) => void; placeholder: string; type?: string }) => (
+    <div>
+        <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 6 }}>{label}</label>
+        <input
+            type={type} value={value} onChange={e => onChange(e.target.value)}
+            placeholder={placeholder} className="input"
+        />
+    </div>
+);
+
 export default function Onboarding() {
     const [step, setStep] = useState(0);
     const [skills, setSkills] = useState<Set<string>>(new Set());
@@ -98,15 +108,7 @@ export default function Onboarding() {
         setStep(p => p + 1);
     };
 
-    const InputField = ({ label, field, placeholder, type = 'text' }: { label: string; field: keyof FormData; placeholder: string; type?: string }) => (
-        <div>
-            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 6 }}>{label}</label>
-            <input
-                type={type} value={form[field]} onChange={e => set(field, e.target.value)}
-                placeholder={placeholder} className="input"
-            />
-        </div>
-    );
+
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative', overflow: 'hidden', fontFamily: 'var(--font-sans)' }}>
@@ -165,15 +167,15 @@ export default function Onboarding() {
                         {/* Step 0 — Basic Info */}
                         {step === 0 && (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                                <InputField label="Full Name *" field="name" placeholder="e.g. Arjun Sharma" />
-                                <InputField label="College / University" field="college" placeholder="e.g. KIIT University, Bhubaneswar" />
+                                <InputField label="Full Name *" value={form.name} onChange={v => set('name', v)} placeholder="e.g. Arjun Sharma" />
+                                <InputField label="College / University" value={form.college} onChange={v => set('college', v)} placeholder="e.g. KIIT University, Bhubaneswar" />
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                                    <InputField label="Degree & Branch" field="branch" placeholder="e.g. B.Tech CSE" />
-                                    <InputField label="CGPA" field="cgpa" placeholder="e.g. 8.4" type="number" />
+                                    <InputField label="Degree & Branch" value={form.branch} onChange={v => set('branch', v)} placeholder="e.g. B.Tech CSE" />
+                                    <InputField label="CGPA" value={form.cgpa} onChange={v => set('cgpa', v)} placeholder="e.g. 8.4" type="number" />
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                                    <InputField label="Graduation Year" field="graduationYear" placeholder="e.g. 2027" />
-                                    <InputField label="Location" field="location" placeholder="e.g. Bangalore" />
+                                    <InputField label="Graduation Year" value={form.graduationYear} onChange={v => set('graduationYear', v)} placeholder="e.g. 2027" />
+                                    <InputField label="Location" value={form.location} onChange={v => set('location', v)} placeholder="e.g. Bangalore" />
                                 </div>
                                 <div>
                                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Short Bio</label>
@@ -239,8 +241,8 @@ export default function Onboarding() {
                         {/* Step 3 — Career Intent */}
                         {step === 3 && (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                                <InputField label="Target Role(s)" field="targetRole" placeholder="e.g. Backend SDE, Data Analyst" />
-                                <InputField label="Preferred Location(s)" field="preferredLocation" placeholder="e.g. Bangalore, Remote, Mumbai" />
+                                <InputField label="Target Role(s)" value={form.targetRole} onChange={v => set('targetRole', v)} placeholder="e.g. Backend SDE, Data Analyst" />
+                                <InputField label="Preferred Location(s)" value={form.preferredLocation} onChange={v => set('preferredLocation', v)} placeholder="e.g. Bangalore, Remote, Mumbai" />
                                 <div>
                                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Job Focus</label>
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
