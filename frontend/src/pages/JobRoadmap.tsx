@@ -1,12 +1,13 @@
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MOCK_JOBS, MOCK_ROADMAP_WEEKS } from '../lib/mockData';
+import { MOCK_JOBS, MOCK_ROADMAPS } from '../lib/mockData';
 import { CheckCircle2, Circle, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
 export default function JobRoadmap() {
     const { id } = useParams();
     const job = MOCK_JOBS.find(j => j.id === id) ?? MOCK_JOBS[0];
+    const roadmapWeeks = MOCK_ROADMAPS[job.id] || MOCK_ROADMAPS['job_001'];
     const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set([
         'w0t0', 'w0t1', 'w0t2', 'w1t0', 'w1t1',
     ]));
@@ -19,7 +20,7 @@ export default function JobRoadmap() {
         });
     };
 
-    const totalTasks = MOCK_ROADMAP_WEEKS.reduce((s, w) => s + w.tasks.length, 0);
+    const totalTasks = roadmapWeeks.reduce((s: number, w: any) => s + w.tasks.length, 0);
     const doneTasks = completedTasks.size;
     const overallPct = Math.round((doneTasks / totalTasks) * 100);
 
@@ -59,7 +60,7 @@ export default function JobRoadmap() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
                         <span>{doneTasks}/{totalTasks} tasks done</span>
-                        <span>~{MOCK_ROADMAP_WEEKS.length} weeks total</span>
+                        <span>~{roadmapWeeks.length} weeks total</span>
                     </div>
                 </div>
             </div>
@@ -72,9 +73,9 @@ export default function JobRoadmap() {
                     background: 'linear-gradient(180deg, #6366f1 0%, var(--color-surface-3) 100%)'
                 }} />
 
-                {MOCK_ROADMAP_WEEKS.map((week, wi) => {
-                    const weekDone = week.tasks.every((_, ti) => completedTasks.has(`w${wi}t${ti}`));
-                    const weekPct = Math.round(week.tasks.filter((_, ti) => completedTasks.has(`w${wi}t${ti}`)).length / week.tasks.length * 100);
+                {roadmapWeeks.map((week: any, wi: number) => {
+                    const weekDone = week.tasks.every((_: any, ti: number) => completedTasks.has(`w${wi}t${ti}`));
+                    const weekPct = Math.round(week.tasks.filter((_: any, ti: number) => completedTasks.has(`w${wi}t${ti}`)).length / week.tasks.length * 100);
 
                     return (
                         <motion.div
@@ -131,7 +132,7 @@ export default function JobRoadmap() {
 
                                     {/* Tasks */}
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                        {week.tasks.map((task, ti) => {
+                                        {week.tasks.map((task: any, ti: number) => {
                                             const key = `w${wi}t${ti}`;
                                             const done = completedTasks.has(key);
                                             return (
@@ -142,12 +143,23 @@ export default function JobRoadmap() {
                                                             : <Circle size={18} color="var(--color-border-light)" />
                                                         }
                                                     </div>
-                                                    <span style={{
-                                                        fontSize: '0.875rem', color: done ? 'var(--color-text-muted)' : 'var(--color-text-primary)',
-                                                        textDecoration: done ? 'line-through' : 'none', lineHeight: 1.5
-                                                    }}>
-                                                        {task.text}
-                                                    </span>
+                                                    {task.link ? (
+                                                        <a href={task.link} target="_blank" rel="noreferrer" style={{
+                                                            fontSize: '0.875rem', color: done ? 'var(--color-text-muted)' : '#a5b4fc',
+                                                            textDecoration: done ? 'line-through' : 'none', lineHeight: 1.5,
+                                                            display: 'block'
+                                                        }}>
+                                                            {task.text} ↗
+                                                        </a>
+                                                    ) : (
+                                                        <span style={{
+                                                            fontSize: '0.875rem', color: done ? 'var(--color-text-muted)' : 'var(--color-text-primary)',
+                                                            textDecoration: done ? 'line-through' : 'none', lineHeight: 1.5,
+                                                            display: 'block'
+                                                        }}>
+                                                            {task.text}
+                                                        </span>
+                                                    )}
                                                 </label>
                                             );
                                         })}

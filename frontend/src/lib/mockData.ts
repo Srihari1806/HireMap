@@ -219,68 +219,148 @@ export const MOCK_COLLEGES = [
     },
 ];
 
-export const MOCK_ROADMAP_WEEKS = [
-    {
-        week: 1,
-        title: "Data Structures Foundation",
-        done: true,
-        tasks: [
-            { text: "Arrays, Strings, Hashing", done: true },
-            { text: "Two Pointers & Sliding Window", done: true },
-            { text: "LeetCode: 15 Easy problems", done: true },
-        ],
-    },
-    {
-        week: 2,
-        title: "Recursion & Trees",
-        done: true,
-        tasks: [
-            { text: "Binary Trees (traversal, LCA)", done: true },
-            { text: "BST operations", done: true },
-            { text: "LeetCode: 10 Medium problems", done: false },
-        ],
-    },
-    {
-        week: 3,
-        title: "Graphs & Dynamic Programming",
-        done: false,
-        tasks: [
-            { text: "BFS / DFS, Dijkstra", done: true },
-            { text: "1D and 2D DP patterns", done: false },
-            { text: "LeetCode: 10 Medium + 3 Hard", done: false },
-        ],
-    },
-    {
-        week: 4,
-        title: "System Design Basics",
-        done: false,
-        tasks: [
-            { text: "CAP theorem, SQL vs NoSQL", done: false },
-            { text: "Design: URL Shortener", done: false },
-            { text: "Load balancing concepts", done: false },
-        ],
-    },
-    {
-        week: 5,
-        title: "Node.js Backend Project",
-        done: false,
-        tasks: [
-            { text: "REST APIs with Express", done: false },
-            { text: "Postgres + Prisma integration", done: false },
-            { text: "Redis caching layer", done: false },
-        ],
-    },
-    {
-        week: 6,
-        title: "Mock Interviews & Final Prep",
-        done: false,
-        tasks: [
-            { text: "3 × Full mock interviews", done: false },
-            { text: "Behavioural question preparation", done: false },
-            { text: "Portfolio project – deploy HireMap", done: false },
-        ],
-    },
-];
+export const MOCK_ROADMAPS: Record<string, any[]> = {
+    job_001: [ // Backend Intern (Razorpay)
+        {
+            week: 1,
+            title: "TUF 75 Arrays & Backend Basics (roadmap.sh)",
+            done: true,
+            tasks: [
+                { text: "Solve TUF 75: Arrays & Hashing (Daily)", done: true, link: "https://takeuforward.org/interviews/strivers-sde-sheet-top-coding-interview-problems/" },
+                { text: "Backend roadmap.sh: Internet & Basic OS", done: true, link: "https://roadmap.sh/backend" },
+                { text: "Integrate Cursor AI for auto-completing Node.js boilerplate", done: true, link: "https://cursor.sh/" },
+            ],
+        },
+        {
+            week: 2,
+            title: "TUF 75 Linked Lists & Deep Routing",
+            done: true,
+            tasks: [
+                { text: "Solve TUF 75: Linked Lists & Two Pointers", done: true },
+                { text: "Express.js Advanced Routing & Middlewares", done: true },
+                { text: "Use ChatGPT to review REST API architectures", done: false },
+            ],
+        },
+        {
+            week: 3,
+            title: "TUF 90 DP & Databases (roadmap.sh)",
+            done: false,
+            tasks: [
+                { text: "Solve TUF 90: Dynamic Programming Patterns", done: false },
+                { text: "PostgreSQL & Redis caching (roadmap.sh/backend)", done: false, link: "https://roadmap.sh/backend" },
+                { text: "AI Tooling: Copilot for writing complex SQL joins", done: false },
+            ],
+        },
+        {
+            week: 4,
+            title: "System Design & Final Mock",
+            done: false,
+            tasks: [
+                { text: "System Design Primer: CAP Theorem & Scaling", done: false },
+                { text: "LeetCode Hard: 5 Backend/Concurrency problems", done: false, link: "https://leetcode.com/" },
+                { text: "Live mock interview with Pramp / AI avatar", done: false },
+            ],
+        },
+    ],
+    job_002: [ // SWE L3 (Google)
+        {
+            week: 1,
+            title: "TUF 90 Advanced Data Structures",
+            done: true,
+            tasks: [
+                { text: "TUF 90: Segment Trees & Tries", done: true },
+                { text: "LeetCode Daily Challenges (Hard difficulty)", done: true, link: "https://leetcode.com/" },
+                { text: "Use Claude 3.5 Sonnet to optimize space complexity", done: true },
+            ],
+        },
+        {
+            week: 2,
+            title: "Graph Algorithms & roadmap.sh (C++/Java)",
+            done: true,
+            tasks: [
+                { text: "TUF 90: Dijkstra, Bellman-Ford, Floyd-Warshall", done: true },
+                { text: "roadmap.sh: Advanced language features (C++/Java)", done: true, link: "https://roadmap.sh/cpp" },
+                { text: "AI-assisted debugging of Graph edge cases", done: true },
+            ],
+        },
+        {
+            week: 3,
+            title: "Distributed Systems & Machine Coding",
+            done: false,
+            tasks: [
+                { text: "Design a Rate Limiter & Key-Value Store", done: false },
+                { text: "LeetCode: Google specific frequency list top 50", done: false },
+                { text: "Write system design docs using AI summarization", done: false },
+            ],
+        },
+    ],
+    job_003: [ // Full Stack (Zepto)
+        {
+            week: 1,
+            title: "TUF 75 Foundation & Frontend (roadmap.sh)",
+            done: true,
+            tasks: [
+                { text: "TUF 75: Arrays, Strings, fast/slow pointers", done: true },
+                { text: "roadmap.sh/full-stack: React Hooks deep dive", done: true, link: "https://roadmap.sh/full-stack" },
+                { text: "Use v0.dev for rapid UI prototyping", done: true, link: "https://v0.dev/" },
+            ],
+        },
+        {
+            week: 2,
+            title: "Node.js + MongoDB & Trees",
+            done: false,
+            tasks: [
+                { text: "TUF 75: Binary Tree Traversals & BST", done: false },
+                { text: "Build an end-to-end auth flow (Next.js + NextAuth)", done: false },
+                { text: "Copilot Chat: Generate unit tests for frontend", done: false },
+            ],
+        },
+    ],
+    job_004: [ // SDE Intern (Atlassian)
+        {
+            week: 1,
+            title: "TUF 75 Patterns & AWS Basics",
+            done: true,
+            tasks: [
+                { text: "TUF 75: Sliding Window & Recursion", done: true },
+                { text: "roadmap.sh: Cloud provider basics (AWS)", done: true, link: "https://roadmap.sh/aws" },
+                { text: "Prompt AI for explaining microservices", done: true },
+            ],
+        },
+        {
+            week: 2,
+            title: "Java Core & LeetCode Sprints",
+            done: false,
+            tasks: [
+                { text: "Java Collections Framework mastery", done: false },
+                { text: "LeetCode Mediums: 20 problems", done: false },
+                { text: "Use Cursor to migrate legacy Java to Modern Java", done: false },
+            ],
+        },
+    ],
+    job_005: [ // Frontend Engineer (CRED)
+        {
+            week: 1,
+            title: "roadmap.sh Frontend Elite & UI Prototyping",
+            done: true,
+            tasks: [
+                { text: "roadmap.sh/frontend: Advanced React patterns", done: true, link: "https://roadmap.sh/frontend" },
+                { text: "Web Vitals & Performance Optimization", done: true },
+                { text: "Use v0.dev / Framer AI for complex animations", done: true, link: "https://v0.dev/" },
+            ],
+        },
+        {
+            week: 2,
+            title: "TUF 75 (Frontend specific) & Testing",
+            done: true,
+            tasks: [
+                { text: "TUF 75: Pointers & String Manipulation (JS)", done: true },
+                { text: "Cypress & Playwright E2E Testing", done: true },
+                { text: "AI-assisted test generation", done: false },
+            ],
+        },
+    ],
+};
 
 export const MOCK_FEED_POSTS = [
     {

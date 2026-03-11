@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import Resume from './pages/Resume';
 import CareerMap from './pages/CareerMap';
 import { useAuth } from './lib/auth';
+import Chatbot from './components/Chatbot';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { user, isLoading } = useAuth();
@@ -54,6 +55,7 @@ export default function App() {
                     <Route path="/career-map" element={<CareerMap />} />
                 </Route>
             </Routes>
+            <Chatbot />
         </Router>
     );
 }
