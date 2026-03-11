@@ -1,7 +1,12 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MOCK_STUDENT, MOCK_CODING_STATS, MOCK_HEATMAP, MOCK_JOBS } from '../lib/mockData';
+import { MOCK_CODING_STATS, MOCK_HEATMAP, MOCK_JOBS } from '../lib/mockData';
 import { Github, CalendarDays } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../lib/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { DEFAULT_PROFILE, type UserProfile } from '../lib/profileStore';
 
 
 // --- Activity Heatmap ---
@@ -50,9 +55,28 @@ function StatBox({ label, value, sub, color = '#6366f1' }: { label: string; valu
 }
 
 export default function StudentDashboard() {
+    const { user } = useAuth();
+    const [studentProfile, setStudentProfile] = useState<UserProfile | null>(null);
+
+    useEffect(() => {
+        if (!user?.id) return;
+        const unsub = onSnapshot(doc(db, 'profiles', user.id), (docSnap) => {
+            if (docSnap.exists()) {
+                setStudentProfile({ ...DEFAULT_PROFILE, ...(docSnap.data() as Partial<UserProfile>) });
+            } else {
+                setStudentProfile({ ...DEFAULT_PROFILE, name: user.name || '' });
+            }
+        });
+        return () => unsub();
+    }, [user]);
+
+    if (!studentProfile) {
+        return <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-muted)' }}>Loading dashboard...</div>;
+    }
+
+    const student = studentProfile;
     const lc = MOCK_CODING_STATS.leetcode;
     const gh = MOCK_CODING_STATS.github;
-    const student = MOCK_STUDENT;
 
     const submissions = MOCK_HEATMAP.reduce((sum, d) => sum + d.count, 0);
     const activeDays = MOCK_HEATMAP.filter(d => d.count > 0).length;
@@ -62,8 +86,19 @@ export default function StudentDashboard() {
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                 <div>
-                    <h1 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: 4 }}>Good morning, {student.name.split(' ')[0]} 👋</h1>
-                    <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>{student.college} · {student.branch} · Class of {student.graduationYear}</p>
+                    <h1 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: 4 }}>Good morning, {(student.name || 'Student').split(' ')[0]} 👋</h1>
+                    <div style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        {student.college || <span style={{ opacity: 0.5 }}>[Add College]</span>}
+                        <span>·</span>
+                        {student.branch || <span style={{ opacity: 0.5 }}>[Add Branch]</span>}
+                        <span>·</span>
+                        {student.graduationYear ? `Class of ${student.graduationYear}` : <span style={{ opacity: 0.5 }}>[Add Grad Year]</span>}
+                        {(!student.college || !student.branch || !student.graduationYear) && (
+                            <Link to="/profile" style={{ fontSize: '0.75rem', color: '#f59e0b', textDecoration: 'none', fontWeight: 600, background: 'rgba(245, 158, 11, 0.1)', padding: '2px 8px', borderRadius: 4, marginLeft: 4 }}>
+                                Complete Profile
+                            </Link>
+                        )}
+                    </div>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                     {student.badges.map(b => (

@@ -152,10 +152,21 @@ export default function Profile() {
                             )}
                             {isDemo && <span style={{ fontSize: '0.65rem', background: 'rgba(255,184,77,0.15)', color: 'var(--color-warn)', border: '1px solid rgba(255,184,77,0.3)', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>DEMO</span>}
                         </div>
-                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 8 }}>
+                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                             {[profile.college, profile.branch, profile.graduationYear && `Class of ${profile.graduationYear}`, profile.cgpa && `CGPA: ${profile.cgpa}`].filter(Boolean).join(' · ')}
+                            {(!profile.college || !profile.branch || !profile.graduationYear || !profile.cgpa) && !isDemo && (
+                                <button onClick={() => { setEditForm({ ...profile }); setActiveTab('edit'); }} style={{ color: '#f59e0b', fontSize: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', border: 'none', padding: '2px 8px', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}>
+                                    Complete details
+                                </button>
+                            )}
                         </p>
-                        {profile.bio && <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', lineHeight: 1.65, maxWidth: 560, marginBottom: 14 }}>{profile.bio}</p>}
+                        {profile.bio ? (
+                            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', lineHeight: 1.65, maxWidth: 560, marginBottom: 14 }}>{profile.bio}</p>
+                        ) : !isDemo ? (
+                            <p style={{ color: '#f59e0b', fontSize: '0.82rem', marginBottom: 14, cursor: 'pointer', fontWeight: 600 }} onClick={() => { setEditForm({ ...profile }); setActiveTab('edit'); }}>
+                                ✏️ Add a short bio
+                            </p>
+                        ) : null}
 
                         {/* Readiness ring + badges */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
