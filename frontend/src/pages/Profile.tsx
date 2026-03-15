@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit3, Share2, ExternalLink, Plus, X, Save, CheckCircle2, Github, Star, BookOpen, Briefcase } from 'lucide-react';
 import { useAuth } from '../lib/auth';
-import { getProfile, saveProfile, calcReadiness, DEMO_PROFILE, type UserProfile, type Project } from '../lib/profileStore';
+import { getProfile, saveProfile, calcReadiness, DEMO_PROFILE, DEFAULT_PROFILE, type UserProfile, type Project } from '../lib/profileStore';
 import { useToast } from '../lib/toast';
 
 type Tab = 'overview' | 'projects' | 'skills' | 'edit';
@@ -46,7 +46,7 @@ export default function Profile() {
 
         getProfile(user.id).then(stored => {
             if (!stored.onboardingComplete) {
-                setProfile(DEMO_PROFILE);
+                setProfile({ ...DEFAULT_PROFILE, name: user?.name || '' });
                 setIsDemo(true);
             } else {
                 setProfile(stored);

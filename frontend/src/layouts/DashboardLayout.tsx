@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../lib/auth';
 import { useToast } from '../lib/toast';
-import { getProfile, DEMO_PROFILE } from '../lib/profileStore';
+import { getProfile, DEMO_PROFILE, DEFAULT_PROFILE } from '../lib/profileStore';
 import { useEffect, useState } from 'react';
 import type { UserProfile } from '../lib/profileStore';
 
@@ -32,7 +32,7 @@ export default function DashboardLayout() {
     useEffect(() => {
         if (user) {
             getProfile(user.id).then(p => {
-                setProfile(p.onboardingComplete ? p : DEMO_PROFILE);
+                setProfile(p.onboardingComplete ? p : { ...DEFAULT_PROFILE, name: user?.name || '' });
             });
         }
     }, [user]);
