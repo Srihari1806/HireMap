@@ -48,7 +48,7 @@ router.post('/jobs', async (req: AuthRequest, res: Response, next) => {
 
     const job = await prisma.job.create({
       data: {
-        ...(data as Parameters<typeof prisma.job.create>[0]['data']),
+        ...(data as any),
         source: 'ADMIN',
         verified: true,
         postedAt: new Date(),
