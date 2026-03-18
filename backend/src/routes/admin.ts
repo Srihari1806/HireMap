@@ -64,7 +64,7 @@ router.post('/jobs', async (req: AuthRequest, res: Response, next) => {
 router.patch('/jobs/:id/verify', async (req: AuthRequest, res: Response, next) => {
   try {
     const job = await prisma.job.update({
-      where: { id: req.params['id'] },
+      where: { id: req.params['id'] as string },
       data: { verified: true },
     });
     res.json(job);
@@ -77,7 +77,7 @@ router.patch('/jobs/:id/verify', async (req: AuthRequest, res: Response, next) =
 router.delete('/jobs/:id', async (req: AuthRequest, res: Response, next) => {
   try {
     await prisma.job.update({
-      where: { id: req.params['id'] },
+      where: { id: req.params['id'] as string },
       data: { active: false },
     });
     res.json({ message: 'Job deactivated' });

@@ -92,7 +92,7 @@ router.get('/user/applications', authenticate, async (req: AuthRequest, res: Res
 // GET /api/jobs/:id
 router.get('/:id', async (req: Request, res: Response, next) => {
   try {
-    const job = await prisma.job.findUnique({ where: { id: req.params['id'] } });
+    const job = await prisma.job.findUnique({ where: { id: req.params['id'] as string } });
     if (!job) throw new AppError('Job not found', 404);
     res.json(job);
   } catch (err) {
@@ -103,7 +103,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
 // POST /api/jobs/:id/save
 router.post('/:id/save', authenticate, async (req: AuthRequest, res: Response, next) => {
   try {
-    const jobId = req.params['id']!;
+    const jobId = req.params['id'] as string;
     const userId = req.user!.id;
 
     const existing = await prisma.application.findFirst({ where: { userId, jobId } });
@@ -125,7 +125,7 @@ router.post('/:id/save', authenticate, async (req: AuthRequest, res: Response, n
 router.patch('/:id/status', authenticate, async (req: AuthRequest, res: Response, next) => {
   try {
     const { status, notes } = req.body as { status: string; notes?: string };
-    const jobId = req.params['id']!;
+    const jobId = req.params['id'] as string;
     const userId = req.user!.id;
 
     const app = await prisma.application.upsert({

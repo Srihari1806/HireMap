@@ -78,7 +78,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response, next) => {
 router.get('/:id', authenticate, async (req: AuthRequest, res: Response, next) => {
   try {
     const roadmap = await prisma.roadmap.findFirst({
-      where: { id: req.params['id'], userId: req.user!.id },
+      where: { id: req.params['id'] as string, userId: req.user!.id },
     });
     if (!roadmap) throw new AppError('Roadmap not found', 404);
     res.json(roadmap);
@@ -92,7 +92,7 @@ router.patch('/:id/week/:weekId/task', authenticate, async (req: AuthRequest, re
   try {
     const { taskId, done } = req.body as { taskId: string; done: boolean };
     const roadmap = await prisma.roadmap.findFirst({
-      where: { id: req.params['id'], userId: req.user!.id },
+      where: { id: req.params['id'] as string, userId: req.user!.id },
     });
     if (!roadmap) throw new AppError('Roadmap not found', 404);
 
@@ -127,7 +127,7 @@ router.post('/skill-gap', authenticate, async (req: AuthRequest, res: Response, 
 router.delete('/:id', authenticate, async (req: AuthRequest, res: Response, next) => {
   try {
     await prisma.roadmap.deleteMany({
-      where: { id: req.params['id'], userId: req.user!.id },
+      where: { id: req.params['id'] as string, userId: req.user!.id },
     });
     res.json({ message: 'Roadmap deleted' });
   } catch (err) {
