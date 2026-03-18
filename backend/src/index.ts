@@ -171,6 +171,14 @@ app.use(errorHandler as ErrorRequestHandler);
 async function bootstrap(): Promise<void> {
   try {
     await connectDatabase();
+    
+    // Attempt automatic non-destructive array seeding
+    try {
+      const { seed } = await import('./utils/seed.js');
+      if (typeof seed === 'function') await seed();
+    } catch (seedErr) {
+      logger.error('Warning: Seed process skipped or failed natively', seedErr);
+    }
 
     app.listen(PORT, () => {
       logger.info(`

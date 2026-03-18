@@ -1,6 +1,6 @@
 import { prisma } from './database.js';
 
-async function seed() {
+export async function seed() {
   console.log('🌱 Seeding database...');
 
   // Seed sample jobs
@@ -49,7 +49,4 @@ async function seed() {
   await prisma.$disconnect();
 }
 
-seed().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+
