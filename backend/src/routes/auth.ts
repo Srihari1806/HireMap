@@ -34,7 +34,7 @@ router.post('/register', async (req: Request, res: Response, next) => {
     if (!secret) throw new AppError('Server misconfiguration', 500);
 
     const token = jwt.sign({ userId: user.id }, secret, {
-      expiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
+      expiresIn: '7d',
     });
 
     res.status(isNew ? 201 : 200).json({ token, user, isNew });
@@ -56,7 +56,7 @@ router.post('/login', async (req: Request, res: Response, next) => {
     if (!secret) throw new AppError('Server misconfiguration', 500);
 
     const token = jwt.sign({ userId: user.id }, secret, {
-      expiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
+      expiresIn: '7d',
     });
 
     res.json({ token, user });
