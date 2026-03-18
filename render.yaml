@@ -17,7 +17,7 @@ services:
     name: hiremap-api
     env: node
     plan: free
-    buildCommand: "cd backend && npm install --include=dev && npx prisma generate && npm run build && npx prisma db push"
+    buildCommand: "cd backend && npm install --include=dev && npx prisma generate && npm run build && npx prisma db push --accept-data-loss"
     startCommand: "cd backend && npm run start"
     envVars:
       - key: NODE_VERSION
