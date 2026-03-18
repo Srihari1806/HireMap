@@ -1,11 +1,11 @@
-services:
+databases:
   # 1. The PostgreSQL Database
-  - type: pgbouncer
-    name: hiremap-db
-    plan: free # or standard if you upgrade later
+  - name: hiremap-db
+    plan: free
     databaseName: hiremap
     user: hiremap_user
 
+services:
   # 2. Redis Cache
   - type: redis
     name: hiremap-redis
@@ -40,4 +40,4 @@ services:
       - key: FRONTEND_URL
         sync: false
       - key: ANTHROPIC_API_KEY
-        sync: false 
+        sync: false
