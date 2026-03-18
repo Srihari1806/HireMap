@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// HireMap Prisma Schema
+// learn more: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -10,36 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id              String   @id @default(uuid())
-  name            String
-  email           String   @unique
-  password        String
-  role            Role     @default(STUDENT)
-  
-  // Profile Data
-  collegeId       String?
-  college         College? @relation(fields: [collegeId], references: [id])
-  degree          String?
-  branch          String?
-  cgpa            Float?
-  gradYear        Int?
-  
-  // Onboarding Data
-  skills          String[]
-  careerRoles     String[]
-  preferredLocs   String[]
-  jobFocus        JobFocus @default(FULL_TIME)
-  weeklyAvail     Int?     // Hours per week
-
-  // App Data
-  posts           Post[]
-  comments        Comment[]
-  savedJobs       Job[]    @relation("SavedJobs")
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
+// ─── Enums ────────────────────────────────────────────────────
 
 enum Role {
   STUDENT
@@ -52,68 +23,22 @@ enum JobFocus {
   BOTH
 }
 
-model College {
-  id              String   @id @default(uuid())
-  name            String
-  location        String
-  fees            Float
-  avgPackage      Float
-  
-  // DNA Score
-  placementReality Float   // 0-100
-  internshipExp    Float   // 0-100
-  roi              Float   // 0-100
-  
-  users           User[]
-  posts           Post[]
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+enum JobType {
+  INTERNSHIP
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
 }
 
-model Job {
-  id              String   @id @default(uuid())
-  title           String
-  company         String
-  role            String
-  location        String
-  type            JobFocus
-  remote          Boolean  @default(false)
-  salary          String   // e.g. "12 LPA", "50k/month"
-  
-  // Eligibility
-  minCgpa         Float    @default(0.0)
-  reqSkills       String[]
-  
-  // Allocation Data
-  openings        Int
-  applicants      Int
-  shortlistRatio  Float    // e.g. 0.1 for 10%
-  interviewRounds Int
-
-  savedByUsers    User[]   @relation("SavedJobs")
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-
-model Post {
-  id              String   @id @default(uuid())
-  content         String
-  type            PostType
-  anonymous       Boolean  @default(false)
-  
-  authorId        String
-  author          User     @relation(fields: [authorId], references: [id])
-  
-  collegeId       String?
-  college         College? @relation(fields: [collegeId], references: [id])
-  
-  comments        Comment[]
-  likes           Int      @default(0)
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+enum ApplicationStatus {
+  SAVED
+  APPLIED
+  PHONE_SCREEN
+  INTERVIEW
+  OFFER
+  REJECTED
+  WITHDRAWN
 }
 
 enum PostType {
@@ -124,16 +49,223 @@ enum PostType {
   REALITY_CHECK
 }
 
-model Comment {
-  id              String   @id @default(uuid())
-  content         String
-  
-  postId          String
-  post            Post     @relation(fields: [postId], references: [id])
-  
-  authorId        String
-  author          User     @relation(fields: [authorId], references: [id])
+// ─── User ─────────────────────────────────────────────────────
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+model User {
+  id            String  @id @default(uuid())
+  firebaseUid   String  @unique
+  email         String  @unique
+  name          String
+  role          Role    @default(STUDENT)
+
+  // Profile
+  college         String?
+  branch          String?
+  cgpa            Float?
+  graduationYear  Int?
+  location        String?
+  bio             String?
+  github          String?
+  leetcode        String?
+  skills          String[]
+  targetRoles     String[]
+  preferredLocs   String[]
+  jobFocus        String?
+  weeklyHours     Int?
+  readinessScore  Int     @default(0)
+
+  // Relations
+  applications  Application[]
+  resumes       Resume[]
+  atsChecks     ATSCheck[]
+  roadmaps      Roadmap[]
+  posts         Post[]
+  comments      Comment[]
+
+  // Legacy College relation (optional)
+  collegeId     String?
+  collegeRef    College? @relation(fields: [collegeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── College ──────────────────────────────────────────────────
+
+model College {
+  id             String  @id @default(uuid())
+  name           String
+  location       String
+  fees           Float   @default(0)
+  avgPackage     Float   @default(0)
+  placementReality Float @default(0)
+  internshipExp    Float @default(0)
+  roi              Float @default(0)
+
+  users  User[]
+  posts  Post[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Job ──────────────────────────────────────────────────────
+
+model Job {
+  id             String   @id @default(uuid())
+  title          String
+  company        String
+  type           String   @default("FULL_TIME")
+  domain         String[]
+  location       String   @default("Remote")
+  remote         Boolean  @default(false)
+
+  // Compensation
+  salaryMin      Int?
+  salaryMax      Int?
+  stipend        String?
+  ctc            String?
+
+  // Requirements
+  requiredSkills String[]
+  preferredSkills String[]
+  minCgpa        Float?
+  description    String?
+  shortDesc      String?
+
+  // Sourcing
+  source         String   @default("HIREMAP")
+  sourceUrl      String   @unique
+  externalId     String?
+  verified       Boolean  @default(false)
+  active         Boolean  @default(true)
+
+  // Stats
+  openings       Int?
+  applicants     Int?
+
+  postedAt       DateTime @default(now())
+  deadline       DateTime?
+
+  applications   Application[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Application ──────────────────────────────────────────────
+
+model Application {
+  id       String            @id @default(uuid())
+  status   String            @default("SAVED")
+  notes    String?
+  appliedAt DateTime?
+
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  jobId    String
+  job      Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, jobId])
+}
+
+// ─── Resume ───────────────────────────────────────────────────
+
+model Resume {
+  id        String  @id @default(uuid())
+  fileName  String
+  filePath  String
+
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  atsChecks ATSCheck[]
+
+  createdAt DateTime @default(now())
+}
+
+// ─── ATSCheck ─────────────────────────────────────────────────
+
+model ATSCheck {
+  id            String  @id @default(uuid())
+  targetRole    String?
+  overallScore  Int
+  keywordScore  Int
+  formattingScore Int
+  experienceScore Int
+  educationScore  Int
+  skillsScore     Int
+
+  matchedKeywords String[]
+  missingKeywords String[]
+  strengths       String[]
+  improvements    String[]
+  suggestions     Json     @default("[]")
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  resumeId  String?
+  resume    Resume? @relation(fields: [resumeId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+// ─── Roadmap ──────────────────────────────────────────────────
+
+model Roadmap {
+  id            String  @id @default(uuid())
+  title         String
+  targetRole    String
+  targetCompany String?
+  durationWeeks Int     @default(8)
+  skillGaps     String[]
+  weeks         Json    @default("[]")
+  progress      Int     @default(0)
+  completedAt   DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Community ────────────────────────────────────────────────
+
+model Post {
+  id        String   @id @default(uuid())
+  content   String
+  type      PostType
+  anonymous Boolean  @default(false)
+  likes     Int      @default(0)
+
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+
+  collegeId String?
+  college   College? @relation(fields: [collegeId], references: [id])
+
+  comments  Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id       String @id @default(uuid())
+  content  String
+
+  postId   String
+  post     Post   @relation(fields: [postId], references: [id])
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
