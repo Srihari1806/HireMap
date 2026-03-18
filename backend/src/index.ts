@@ -21,12 +21,8 @@ import resumeRoutes from './routes/resume.js';
 import roadmapRoutes from './routes/roadmap.js';
 import adminRoutes from './routes/admin.js';
 
-// Services
-import { JobScraperService } from './services/jobScraper.js';
-
 const app = express();
 const PORT = process.env.PORT || 5000;
-const scraper = new JobScraperService();
 
 // ── Ensure directories exist ──────────────────────────────────
 const uploadDir = process.env.UPLOAD_DIR || './uploads';
@@ -170,27 +166,11 @@ app.use((_req, res) => {
 app.use(errorHandler as ErrorRequestHandler);
 
 // ── Scheduled Jobs ────────────────────────────────────────────
-function setupCronJobs(): void {
-  const intervalHours = parseInt(process.env.SCRAPING_INTERVAL_HOURS || '6');
-  const cronExpression = `0 */${intervalHours} * * *`;
-
-  cron.schedule(cronExpression, async () => {
-    logger.info(`Running scheduled job scrape (every ${intervalHours}h)`);
-    await scraper.runFullScrape();
-  });
-
-  logger.info(`⏰ Scheduled scraping every ${intervalHours} hours`);
-}
 
 // ── Bootstrap ─────────────────────────────────────────────────
 async function bootstrap(): Promise<void> {
   try {
     await connectDatabase();
-
-    // Setup cron only in production or when explicitly enabled
-    if (process.env.NODE_ENV === 'production' || process.env.ENABLE_CRON === 'true') {
-      setupCronJobs();
-    }
 
     app.listen(PORT, () => {
       logger.info(`

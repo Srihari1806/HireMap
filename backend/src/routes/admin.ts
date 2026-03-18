@@ -86,14 +86,6 @@ router.delete('/jobs/:id', async (req: AuthRequest, res: Response, next) => {
   }
 });
 
-// POST /api/admin/scrape  — trigger job scraping
-router.post('/scrape', async (_req: AuthRequest, res: Response, next) => {
-  try {
-    // Placeholder: in real impl, would call JobScraperService
-    res.json({ message: 'Job scraping triggered', status: 'running' });
-  } catch (err) {
-    next(err);
-  }
-});
+// Placeholder removed
 
 export default router;
