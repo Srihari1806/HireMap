@@ -57,6 +57,43 @@ function StatBox({ label, value, sub, color = '#6366f1' }: { label: string; valu
 export default function StudentDashboard() {
     const { user } = useAuth();
     const [studentProfile, setStudentProfile] = useState<UserProfile | null>(null);
+    const [lcStats, setLcStats] = useState(MOCK_CODING_STATS.leetcode);
+    const [ghStats, setGhStats] = useState(MOCK_CODING_STATS.github);
+
+    useEffect(() => {
+        if (!studentProfile?.leetcode) return;
+        fetch(`https://leetcode-stats-api.herokuapp.com/${studentProfile.leetcode}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    setLcStats(prev => ({
+                        ...prev,
+                        totalSolved: data.totalSolved,
+                        totalProblems: data.totalQuestions,
+                        easy: { solved: data.easySolved, total: data.totalEasy },
+                        medium: { solved: data.mediumSolved, total: data.totalMedium },
+                        hard: { solved: data.hardSolved, total: data.totalHard },
+                        contestRating: data.contributionPoint ? Math.round(data.contributionPoint) : prev.contestRating,
+                        globalRank: data.ranking || prev.globalRank
+                    }));
+                }
+            }).catch(e => console.error('LeetCode fetch error', e));
+    }, [studentProfile?.leetcode]);
+
+    useEffect(() => {
+        if (!studentProfile?.github) return;
+        fetch(`https://api.github.com/users/${studentProfile.github}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.public_repos !== undefined) {
+                    setGhStats(prev => ({
+                        ...prev,
+                        publicRepos: data.public_repos,
+                        totalCommits: prev.totalCommits // Or logic to fetch commits if there was a simple endpoint
+                    }));
+                }
+            }).catch(e => console.error('GitHub fetch error', e));
+    }, [studentProfile?.github]);
 
     useEffect(() => {
         if (!user?.id) return;
@@ -75,8 +112,8 @@ export default function StudentDashboard() {
     }
 
     const student = studentProfile;
-    const lc = MOCK_CODING_STATS.leetcode;
-    const gh = MOCK_CODING_STATS.github;
+    const lc = lcStats;
+    const gh = ghStats;
 
     const submissions = MOCK_HEATMAP.reduce((sum, d) => sum + d.count, 0);
     const activeDays = MOCK_HEATMAP.filter(d => d.count > 0).length;

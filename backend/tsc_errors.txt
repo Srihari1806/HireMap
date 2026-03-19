@@ -1,0 +1,24 @@
+
+> backend@1.0.0 build
+> tsc
+
+src/routes/admin.ts(67,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/admin.ts(80,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/jobs.ts(95,56): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/jobs.ts(109,76): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Application"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Application"> | undefined'.
+src/routes/jobs.ts(116,23): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/jobs.ts(132,40): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/jobs.ts(134,25): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/roadmap.ts(81,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Roadmap"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Roadmap"> | undefined'.
+src/routes/roadmap.ts(95,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Roadmap"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Roadmap"> | undefined'.
+src/routes/roadmap.ts(130,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Roadmap"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Roadmap"> | undefined'.

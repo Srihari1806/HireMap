@@ -108,6 +108,7 @@ export default function JobHub() {
     const [sortBy, setSortBy] = useState('Best Match');
     const [showFilters, setShowFilters] = useState(true);
     const [remoteOnly, setRemoteOnly] = useState(false);
+    const [viewMode, setViewMode] = useState<'list' | 'company'>('list');
 
     const filtered = useMemo(() => {
         let jobs = ALL_JOBS.filter(j => {
@@ -136,6 +137,15 @@ export default function JobHub() {
 
         return jobs;
     }, [activeRole, activeType, activeSource, matchFilter, cgpaFilter, sortBy, remoteOnly]);
+
+    const groupedByCompany = useMemo(() => {
+        const map = new Map<string, typeof filtered>();
+        for (const job of filtered) {
+            if (!map.has(job.company)) map.set(job.company, []);
+            map.get(job.company)!.push(job);
+        }
+        return Array.from(map.entries()).sort((a, b) => b[1].length - a[1].length);
+    }, [filtered]);
 
     // Source counts for tab badges
     const sourceCounts = useMemo(() => {
@@ -294,23 +304,30 @@ export default function JobHub() {
                     <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                         <span style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>{filtered.length}</span> results
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Sort by:</span>
-                        <select
-                            value={sortBy}
-                            onChange={e => setSortBy(e.target.value)}
-                            style={{
-                                padding: '5px 10px', borderRadius: 7, fontSize: '0.78rem', fontWeight: 600,
-                                background: 'var(--color-surface-2)', border: '1px solid var(--color-border)',
-                                color: 'var(--color-text-primary)', cursor: 'pointer', outline: 'none'
-                            }}
-                        >
-                            {SORT_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                        </select>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ display: 'flex', background: 'var(--color-surface-2)', padding: 4, borderRadius: 8 }}>
+                            <button onClick={() => setViewMode('list')} style={{ padding: '5px 12px', background: viewMode === 'list' ? 'var(--color-primary)' : 'transparent', color: viewMode === 'list' ? 'white' : 'var(--color-text-secondary)', border: 'none', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 }}>List</button>
+                            <button onClick={() => setViewMode('company')} style={{ padding: '5px 12px', background: viewMode === 'company' ? 'var(--color-primary)' : 'transparent', color: viewMode === 'company' ? 'white' : 'var(--color-text-secondary)', border: 'none', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 }}><Building2 size={12} /> By Company</button>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Sort by:</span>
+                            <select
+                                value={sortBy}
+                                onChange={e => setSortBy(e.target.value)}
+                                style={{
+                                    padding: '5px 10px', borderRadius: 7, fontSize: '0.78rem', fontWeight: 600,
+                                    background: 'var(--color-surface-2)', border: '1px solid var(--color-border)',
+                                    color: 'var(--color-text-primary)', cursor: 'pointer', outline: 'none'
+                                }}
+                            >
+                                {SORT_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 {/* Job cards */}
+                {viewMode === 'list' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <AnimatePresence mode="popLayout">
                         {filtered.slice(0, 60).map((job, i) => (
@@ -332,6 +349,47 @@ export default function JobHub() {
                         </div>
                     )}
                 </div>
+                ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+                    {groupedByCompany.map(([companyName, jobs]) => (
+                        <div key={companyName} className="card" style={{ padding: 20, display: 'flex', flexDirection: 'column', transition: 'box-shadow 0.2s, transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+                                <div style={{ width: 48, height: 48, borderRadius: 12, background: jobs[0].companyColor + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 800, color: jobs[0].companyColor, flexShrink: 0 }}>
+                                    {jobs[0].companyLogo}
+                                </div>
+                                <div style={{ minWidth: 0 }}>
+                                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{companyName}</h3>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{jobs.length} open position{jobs.length > 1 ? 's' : ''}</div>
+                                </div>
+                            </div>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {jobs.slice(0, 3).map(job => (
+                                    <Link to={`/jobs/${job.id}`} key={job.id} style={{ display: 'block', textDecoration: 'none', padding: '12px 14px', background: 'var(--color-surface-2)', borderRadius: 10, border: '1px solid var(--color-border)', color: 'inherit', transition: 'border-color 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--color-primary)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--color-border)'}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, gap: 10 }}>
+                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{job.role}</div>
+                                            {job.matchScore >= 70 && <span style={{ fontSize: '0.65rem', color: '#10b981', fontWeight: 700, flexShrink: 0 }}>{job.matchScore}% Match</span>}
+                                        </div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', gap: 10 }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={10} /> {job.location}</span>
+                                        </div>
+                                    </Link>
+                                ))}
+                                {jobs.length > 3 && (
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', textAlign: 'center', cursor: 'pointer', fontWeight: 600, padding: 8 }}>
+                                        + {jobs.length - 3} more roles
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                    {filtered.length === 0 && (
+                        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 0', color: 'var(--color-text-muted)' }}>
+                            <div style={{ fontSize: '2rem', marginBottom: 12 }}>🔍</div>
+                            <div style={{ fontWeight: 600, marginBottom: 6 }}>No companies match your filters</div>
+                        </div>
+                    )}
+                </div>
+                )}
             </div>
         </div>
     );

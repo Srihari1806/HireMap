@@ -73,14 +73,28 @@ function ATSCheckerTab() {
     const score = MOCK_ATS_RESULT.atsScore;
     const [checked, setChecked] = useState(false);
     const [checking, setChecking] = useState(false);
+    const [file, setFile] = useState<File | null>(null);
     const { toast } = useToast();
 
     const runCheck = async () => {
+        if (!file) {
+            toast('Please upload a resume first.', 'error');
+            return;
+        }
         setChecking(true);
         await new Promise(r => setTimeout(r, 1800));
         setChecking(false);
         setChecked(true);
         toast('ATS analysis complete!', 'success');
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-border-light)';
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            setFile(e.dataTransfer.files[0]);
+            toast(`File ${e.dataTransfer.files[0].name} selected`, 'success');
+        }
     };
 
     return (
@@ -93,11 +107,21 @@ function ATSCheckerTab() {
                     textAlign: 'center', marginBottom: 20, background: 'var(--color-surface-2)',
                     cursor: 'pointer', transition: 'border-color 0.2s'
                 }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--color-border-light)')}
+                    onMouseEnter={e => ((e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-primary)')}
+                    onMouseLeave={e => ((e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-border-light)')}
+                    onDrop={handleDrop}
+                    onDragOver={e => { e.preventDefault(); (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-primary)'; }}
+                    onDragLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-border-light)'; }}
+                    onClick={() => document.getElementById('resume-upload')?.click()}
                 >
-                    <FileText size={32} style={{ color: 'var(--color-text-muted)', marginBottom: 12 }} />
-                    <div style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: 4 }}>Drop your resume here</div>
+                    <input type="file" id="resume-upload" hidden accept=".pdf,.doc,.docx" onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                            setFile(e.target.files[0]);
+                            toast(`File ${e.target.files[0].name} selected`, 'success');
+                        }
+                    }} />
+                    <FileText size={32} style={{ color: file ? 'var(--color-primary)' : 'var(--color-text-muted)', marginBottom: 12 }} />
+                    <div style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: 4 }}>{file ? file.name : 'Drop your resume here or click to browse'}</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>PDF, DOCX — max 5MB</div>
                 </div>
                 <button className="btn-primary" onClick={runCheck} disabled={checking} style={{ width: '100%' }}>
